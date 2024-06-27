@@ -1,0 +1,15 @@
+node_modules/
+
+src/bin/
+src/lib/
+src/obj/
+src/mod.csproj
+
+tmp/
+
+tool/
+
+src/config.json
+
+package.json
+package-lock.json
