@@ -11,12 +11,12 @@ using System;
 using System.Collections.Generic;
 
 //  TARGET: Issue 1
-//  PURPOSE: Band-aid patch - null-check IOfficerAssignmentLocation components of loaded officers; skip nulls.
-//  TODO: fix null loading, or set position to an owned PoI instead of executing them.
+//  PURPOSE: Allows loading of corrupted saves, just in case.
 
 namespace CQaCP {
   [HarmonyPatch]
   class Patch_TeamNavyLoadAllOfficerAssignments {
+
     [HarmonyTargetMethod]
     static MethodBase TargetMethod()
     {
@@ -26,7 +26,7 @@ namespace CQaCP {
     }
 
     [HarmonyPrefix]
-    static bool NoSurvivors(TeamNavy __instance) {
+    static bool RelocateOrExecute(TeamNavy __instance) {
       if (!NetworkServer.active)
       {
         Debug.LogWarning((object) "[CQaCP] [Server] function 'System.Void Conquest.Units.TeamNavy::LoadAllOfficerAssignments()' called when server was not active");
@@ -40,8 +40,14 @@ namespace CQaCP {
         var groupList = Enumerable.GroupBy<Officer, IOfficerAssignmentLocation>(__instance.AllOfficers, (Func<Officer, IOfficerAssignmentLocation>) (x => x.AssignedLocation));
 
         foreach (IGrouping<IOfficerAssignmentLocation, Officer> grouping in groupList) {
-          if (grouping.Key == null) { continue; }
-          grouping.Key.SetAllOfficers((IEnumerable<Officer>) grouping); //NOTE: NRE occured here. The data is in the save file, but it's not being loaded. TODO: find disconnect
+          if (grouping.Key == null) { Patch_SkirmishBattleAftermathSynchronizer_CoroutineCompileBattleData.ReassignOfficers(__instance, grouping); }
+        }
+        //regenerate groupings
+        groupList = Enumerable.GroupBy<Officer, IOfficerAssignmentLocation>(__instance.AllOfficers, (Func<Officer, IOfficerAssignmentLocation>) (x => x.AssignedLocation));
+
+        foreach (IGrouping<IOfficerAssignmentLocation, Officer> grouping in groupList) {
+          if (grouping.Key == null) { continue; } //Executed officers may be included here, so still ignore nulls
+          grouping.Key.SetAllOfficers((IEnumerable<Officer>) grouping);
         }
       }
       return false;

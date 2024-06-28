@@ -2,7 +2,7 @@
 <ModInfo xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <ModName>[CQ ALPHA] Community Patch</ModName>
   <ModDescription>[CONQUEST ALPHA ONLY] Community made mod that fixes verious issues in the Conquest alpha branch.</ModDescription>
-  <ModVer>0.0.1</ModVer>
+  <ModVer>0.0.2</ModVer>
   <GameVer>0.4.4</GameVer>
   <Assemblies>
     <string>cqa-communitypatch.dll</string>
